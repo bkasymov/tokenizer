@@ -42,6 +42,7 @@ jobs:
 
       - name: Verify on BscScan
         env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           BSCSCAN_API_KEY: ${{ secrets.BSCSCAN_API_KEY }}
         run: npx hardhat verify --network bscTestnet ${{ steps.deploy.outputs.contract_address }}
 
