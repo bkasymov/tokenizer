@@ -1,0 +1,34 @@
+{
+  "name": "dpenney-42",
+  "version": "1.0.0",
+  "description": "BEP-20 token for 42 School Tokenizer project",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "lint:sol": "npx solhint 'contracts/**/*.sol'",
+    "lint:js": "npx eslint '**/*.js' --ignore-pattern 'node_modules/' --ignore-pattern 'artifacts/' --ignore-pattern 'cache/'",
+    "lint": "npm run lint:sol && npm run lint:js"
+  },
+  "keywords": [
+    "42",
+    "school",
+    "tokenizer",
+    "project",
+    "blockchain",
+    "smart contract",
+    "solidity"
+  ],
+  "author": "dpenney",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "eslint": "^8.57.0",
+    "hardhat": "^2.28.6",
+    "solhint": "^5.0.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "dotenv": "^17.3.1"
+  }
+}

@@ -1,0 +1,61 @@
+name: Deploy to BSC Testnet
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  deploy-and-verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      - name: Deploy to BSC Testnet
+        id: deploy
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          BSCSCAN_API_KEY: ${{ secrets.BSCSCAN_API_KEY }}
+        run: |
+          OUTPUT=$(npx hardhat run scripts/deploy.js --network bscTestnet 2>&1)
+          echo "$OUTPUT"
+          ADDRESS=$(echo "$OUTPUT" | grep -oE '0x[a-fA-F0-9]{40}' | tail -1)
+          echo "contract_address=$ADDRESS" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for BscScan indexing
+        run: sleep 30
+
+      - name: Verify on BscScan
+        env:
+          BSCSCAN_API_KEY: ${{ secrets.BSCSCAN_API_KEY }}
+        run: npx hardhat verify --network bscTestnet ${{ steps.deploy.outputs.contract_address }}
+
+      - name: Deployment Summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Deployment Info
+
+          | Field | Value |
+          |-------|-------|
+          | **Contract Address** | \`${{ steps.deploy.outputs.contract_address }}\` |
+          | **BscScan** | [View on BscScan](https://testnet.bscscan.com/address/${{ steps.deploy.outputs.contract_address }}) |
+          | **Network** | BSC **Testnet** (Chain ID: 97) |
+          | **Tag** | \`${{ github.ref_name }}\` |
+
+          > ⚠️ **This deployment is on BSC TESTNET — not mainnet**
+          EOF
